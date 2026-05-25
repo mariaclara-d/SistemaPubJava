@@ -1,5 +1,8 @@
 package com.example.demo.model;
 
+import jakarta.persistence.Embeddable;
+
+@Embeddable
 public class ItemPedido {
     private String id;
     private String name;
@@ -7,8 +10,7 @@ public class ItemPedido {
     private String category;
     private int quantity;
 
-    public ItemPedido() {
-    }
+    public ItemPedido() {}
 
     public ItemPedido(Produto p, int quantity) {
         this.id = p.getId();
@@ -18,23 +20,9 @@ public class ItemPedido {
         this.quantity = quantity;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
+    public String getId() { return id; }
+    public String getName() { return name; }
+    public double getPrice() { return price; }
+    public String getCategory() { return category; }
+    public int getQuantity() { return quantity; }
 }

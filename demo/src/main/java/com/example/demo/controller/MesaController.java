@@ -3,8 +3,12 @@ package com.example.demo.controller;
 import com.example.demo.dto.AdicionarItensRequest;
 import com.example.demo.dto.AtualizarNicknameRequest;
 import com.example.demo.dto.MesaResponse;
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Mesa;
 import com.example.demo.service.PubService;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,9 +16,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/mesas")
-@CrossOrigin(origins = "*")
 public class MesaController {
 
+    private static final Logger logger = LoggerFactory.getLogger(MesaController.class);
     private final PubService pubService;
 
     public MesaController(PubService pubService) {
@@ -36,11 +40,13 @@ public class MesaController {
     @PutMapping("/{idMesa}/nickname")
     public ResponseEntity<?> atualizarNickname(
             @PathVariable int idMesa,
-            @RequestBody AtualizarNicknameRequest request
+            @Valid @RequestBody AtualizarNicknameRequest request
     ) {
+        logger.info("Atualizando nickname da mesa {}", idMesa);
         Mesa mesa = pubService.getMesa(idMesa);
         if (mesa == null) {
-            return ResponseEntity.notFound().build();
+            logger.warn("Mesa {} não encontrada", idMesa);
+            throw new ResourceNotFoundException("Mesa com ID " + idMesa + " não encontrada");
         }
 
         pubService.atualizarNickname(idMesa, request.getNickname());
@@ -50,11 +56,13 @@ public class MesaController {
     @PostMapping("/{idMesa}/itens")
     public ResponseEntity<?> adicionarItens(
             @PathVariable int idMesa,
-            @RequestBody AdicionarItensRequest request
+            @Valid @RequestBody AdicionarItensRequest request
     ) {
+        logger.info("Adicionando {} itens à mesa {}", request.getItems().size(), idMesa);
         Mesa mesa = pubService.getMesa(idMesa);
         if (mesa == null) {
-            return ResponseEntity.notFound().build();
+            logger.warn("Mesa {} não encontrada", idMesa);
+            throw new ResourceNotFoundException("Mesa com ID " + idMesa + " não encontrada");
         }
 
         pubService.adicionarItensMesa(idMesa, request.getItems());
@@ -66,9 +74,11 @@ public class MesaController {
             @PathVariable int idMesa,
             @PathVariable String produtoId
     ) {
+        logger.info("Removendo produto {} da mesa {}", produtoId, idMesa);
         Mesa mesa = pubService.getMesa(idMesa);
         if (mesa == null) {
-            return ResponseEntity.notFound().build();
+            logger.warn("Mesa {} não encontrada", idMesa);
+            throw new ResourceNotFoundException("Mesa com ID " + idMesa + " não encontrada");
         }
 
         pubService.removerItemMesa(idMesa, produtoId);
@@ -77,9 +87,11 @@ public class MesaController {
 
     @PostMapping("/{idMesa}/fechar")
     public ResponseEntity<?> fecharConta(@PathVariable int idMesa) {
+        logger.info("Fechando conta da mesa {}", idMesa);
         Mesa mesa = pubService.getMesa(idMesa);
         if (mesa == null) {
-            return ResponseEntity.notFound().build();
+            logger.warn("Mesa {} não encontrada", idMesa);
+            throw new ResourceNotFoundException("Mesa com ID " + idMesa + " não encontrada");
         }
 
         pubService.fecharConta(idMesa);
